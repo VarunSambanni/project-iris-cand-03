@@ -1,0 +1,111 @@
+# Schema
+
+![Schema diagram](schema-diagram.png)
+
+```mermaid
+erDiagram
+    SOURCE_RUN {
+        text country_code PK
+        bigint source_run_id PK
+        text region_code
+        text source_id
+        date source_date
+        timestamptz created_at
+    }
+
+    STAGING_FEATURE {
+        text country_code PK, FK
+        bigint staging_feature_id PK
+        bigint source_run_id FK
+        text region_code
+        text source_id
+        text feature_type
+        integer source_srid
+        geometry geom
+        timestamptz created_at
+    }
+
+    PARCEL {
+        text country_code PK, FK
+        bigint parcel_id PK
+        bigint source_run_id FK
+        text region_code
+        text source_id
+        date source_date
+        text completeness_status
+        geometry geom "MultiPolygon EPSG:4326"
+        timestamptz created_at
+    }
+
+    SUBSTATION {
+        text country_code PK, FK
+        bigint substation_id PK
+        bigint source_run_id FK
+        text region_code
+        text source_id
+        text name
+        date source_date
+        text completeness_status
+        geometry geom "Point EPSG:4326"
+        timestamptz created_at
+    }
+
+    PEATLAND {
+        text country_code PK, FK
+        bigint peatland_id PK
+        bigint source_run_id FK
+        text region_code
+        text source_id
+        text classification
+        date source_date
+        text completeness_status
+        geometry geom "MultiPolygon EPSG:4326"
+        timestamptz created_at
+    }
+
+    SCREENING_LAYER {
+        text country_code PK, FK
+        bigint screening_layer_id PK
+        bigint source_run_id FK
+        text region_code
+        text source_id
+        text name
+        text category
+        date source_date
+        text completeness_status
+        geometry geom "MultiPolygon EPSG:4326"
+        timestamptz created_at
+    }
+
+    EVIDENCE {
+        text country_code PK, FK
+        bigint evidence_id PK
+        bigint source_run_id FK
+        bigint parcel_id FK
+        bigint substation_id FK
+        bigint peatland_id FK
+        bigint screening_layer_id FK
+        text region_code
+        text source_id
+        text evidence_type
+        numeric numeric_value
+        text unit
+        text uncertainty
+        date source_date
+        timestamptz created_at
+    }
+
+    SOURCE_RUN ||--o{ STAGING_FEATURE : stages
+    SOURCE_RUN ||--o{ PARCEL : imports
+    SOURCE_RUN ||--o{ SUBSTATION : imports
+    SOURCE_RUN ||--o{ PEATLAND : imports
+    SOURCE_RUN ||--o{ SCREENING_LAYER : imports
+    SOURCE_RUN ||--o{ EVIDENCE : produces
+
+    PARCEL ||--o{ EVIDENCE : has
+    SUBSTATION o|--o{ EVIDENCE : supports
+    PEATLAND o|--o{ EVIDENCE : supports
+    SCREENING_LAYER o|--o{ EVIDENCE : supports
+```
+
+`country_code` is part of each primary and foreign-key relationship. An evidence record belongs to one parcel and references exactly one substation, peatland, or screening layer.

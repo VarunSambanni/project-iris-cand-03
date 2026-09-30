@@ -1,0 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE SCHEMA iris_staging;
+CREATE SCHEMA iris_core;
